@@ -1,4 +1,4 @@
-name: Workout Wonders NG - CI/CD Pipeline
+name: Workout Wonders NG - Full CI/CD Pipeline
 
 on:
   push:
@@ -6,28 +6,46 @@ on:
       - main
 
 jobs:
-  build:
+  setup-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set up Node.js
+      - name: Set Up Node.js
         uses: actions/setup-node@v2
         with:
           node-version: '18'
 
-      - name: Install Amplify CLI
+      - name: Install Expo CLI
+        run: npm install -g expo-cli
+
+      - name: Install AWS Amplify CLI
         run: npm install -g @aws-amplify/cli
+
+      - name: Create Expo App If Missing
+        run: |
+          if [ ! -f package.json ]; then
+            npx create-expo-app@latest .
+          fi
 
       - name: Install Dependencies
         run: npm install
 
-      - name: Pull Amplify Backend
+      - name: Initialize AWS Amplify If Missing
+        run: |
+          if [ ! -d "amplify" ]; then
+            amplify init --yes --envName dev --appId workoutwondersng
+            amplify add auth --yes
+            amplify add api --yes
+            amplify push --yes
+          fi
+
+      - name: Pull Latest AWS Amplify Backend
         run: amplify pull --yes
 
-      - name: Build Expo App
+      - name: Build Expo Web App
         run: expo build:web
 
       - name: Deploy to AWS Amplify
