@@ -18,17 +18,19 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install the New Expo CLI
+      - name: Install Expo CLI
         run: npm install -g create-expo-app
 
       - name: Install AWS Amplify CLI
         run: npm install -g @aws-amplify/cli
 
-      - name: Verify and Initialize Expo Project
+      - name: Verify and Initialize Expo Project in a Temp Directory
         run: |
           if [ ! -f package.json ]; then
             echo "No package.json found. Creating a new Expo project..."
-            npx create-expo-app . --no-install
+            npx create-expo-app temp-expo-project --no-install
+            mv temp-expo-project/* temp-expo-project/.* . || true
+            rm -rf temp-expo-project
           else
             echo "package.json found. Skipping Expo project creation."
           fi
