@@ -24,10 +24,13 @@ jobs:
       - name: Install AWS Amplify CLI
         run: npm install -g @aws-amplify/cli
 
-      - name: Create Expo App If Missing
+      - name: Verify Existing Package.json
         run: |
           if [ ! -f package.json ]; then
-            npx create-expo-app@latest .
+            echo "No package.json found. Initializing a new Expo project..."
+            expo init --template blank --name "workout-wonders-ng" --no-install
+          else
+            echo "package.json found. Skipping Expo project creation."
           fi
 
       - name: Install Dependencies
@@ -36,7 +39,7 @@ jobs:
       - name: Initialize AWS Amplify If Missing
         run: |
           if [ ! -d "amplify" ]; then
-            amplify init --yes --envName dev --appId workoutwondersng
+            amplify init --yes --envName dev
             amplify add auth --yes
             amplify add api --yes
             amplify push --yes
